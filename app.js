@@ -1,20 +1,62 @@
+require('dotenv').config()
+const cors = require('cors')
+
 const express = require('express');
 const logger = require('morgan');
 const bodyParser = require('body-parser');
-
-// Set up the express app
 const app = express();
+// app.use(cors({credentials: true}));
+const path = require('path')
+const cookieParser = require('cookie-parser');
+const { Fighter, Season, Fight } = require("./server/models");
 
-// Log requests to the console.
+
+const https = require('https');
+const db = require('./server/models/index')
+if (process.env.NODE_ENV === 'production') {
+
+    app.use(express.static(path.join(__dirname, 'client/build')))
+
+    // app.get('*', (req, res) => {
+    //     res.sendFile(path.join(__dirname + '/client/build/index.html'))
+    // })
+};
+
+
+app.use((req, res, next) => {
+    res.set({
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Methods": "GET,HEAD,OPTIONS,POST,PUT",
+        "Access-Control-Allow-Headers": "Origin, X-Requested-With, Content-Type, Accept, Authorization"
+    })
+    next();
+});
 app.use(logger('dev'));
 
-// Parse incoming requests data (https://github.com/expressjs/body-parser)
+// Season.populateSeasons();
+
+Fighter.amassNames();
+
+
+const port = process.env.PORT || 5000;
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 
-// Setup a default catch-all route that sends back a welcome message in JSON format.
-app.get('*', (req, res) => res.status(200).send({
-    message: 'FANTASYMMALEAGUE2019YEEHAW.',
-}));
+app.use(cookieParser());
+// app.use(customAuthMiddleWare);
 
+
+
+
+
+
+
+
+
+db.sequelize.sync().then(() => {
+
+    app.listen(port, () => {
+        console.log(`App listening on PORT ${port}`)
+    })
+});
 module.exports = app;

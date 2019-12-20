@@ -10,8 +10,11 @@ module.exports = (sequelize, DataTypes) => {
     takedowns: DataTypes.INTEGER,
     submission_attempts: DataTypes.INTEGER
   }, {});
-  Fight.associate = function(models) {
+  Fight.associate = function({Fighter}) {
     // associations can be defined here
+    Fight.belongsTo(Fighter);
   };
+
+  
   return Fight;
 };
